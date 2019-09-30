@@ -126,19 +126,13 @@ import isInRange from "./isInRange";
     public getCodeOfSequence = (sequence: string) => this.sequences[sequence];
 
     /**
+     * Возвращает последовательность по коду из словаря
+     */
+    public getSequenceByCode = (code: number) => this.codes[code];
+
+    /**
      * Добавляет последовательность в словарь и возвращает код
      */
     public putSequence = (sequence: string) => this.add(this.size, sequence);
 
 };
-
-/*
-Dictionary.prototype.containsIndex = function(code) {
-    return code in this.index;
-};
-
-Dictionary.prototype.putIndex = function(key) {
-    this.add(this.size, key);
-    return key;
-};
-*/
