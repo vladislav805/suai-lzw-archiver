@@ -1,6 +1,8 @@
 import React from 'react';
 import FileChooser from '../components/FileChooser';
 import readFileAsync from '../util/read-file';
+import LZW from '../util/lzw';
+import { StringToUInt8 } from '../util/conv';
 
 export interface IUnpackProps {}
 
@@ -8,12 +10,6 @@ export interface IUnpackState {
     output: string; // результат распаковки
     busy: boolean; // loading...
 }
-
-/**
- * Временная функция-заглушка
- * @param input исходные сжатые данные
- */
-const noop = async (input: string) => input;
 
 /**
  * Вкладка распаковщика
@@ -51,10 +47,16 @@ export default class Unpack extends React.Component<IUnpackProps, IUnpackState> 
 
         this.setState({ busy: true });
 
-        const fileContent = await readFileAsync(this.file);
-        const result = await noop(fileContent);
+        const fileContent = await readFileAsync(this.file, false);
+        const result = LZW.decompress(StringToUInt8(fileContent));
 
-        this.setState({ output: result, busy: false });
+        if (result === null) {
+            this.setState({ busy: false });
+            alert('Данные повреждены.');
+            return;
+        }
+
+        this.setState({ output: String(result), busy: false });
     };
 
     render() {
