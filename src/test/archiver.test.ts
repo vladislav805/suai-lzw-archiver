@@ -1,19 +1,11 @@
-import {} from "jest";
-
-/**
- * Fake-тесты, пока нет алгоритма
- */
-
-const noop = (text: string) => text.split('').reverse().join('');
-const compress = noop;
-const decomress = noop;
+import {} from 'jest';
+import LZW from '../util/lzw';
 
 it('Обратимость', () => {
-
     const text = 'Какой-нибудь русский текст с пробелами, символвами и знаками пунктуации, без английского текста.';
     
-    const compressed = compress(text);
-    const decomressed = decomress(compressed);
+    const compressed = LZW.compress(text);
+    const decomressed = LZW.decompress(compressed);
 
     expect(decomressed).toBe(text);
 });
@@ -21,7 +13,16 @@ it('Обратимость', () => {
 it('Архивированный текст меньше по размеру, чем оригинальный', () => {
     const text = 'Какой-нибудь русский текст с пробелами, символвами и знаками пунктуации, без английского текста.';
     
-    const compressed = compress(text);
+    const compressed = LZW.compress(text);
 
     expect(compressed.length).toBeLessThanOrEqual(text.length);
+});
+
+it('Запаковка и распаковка строки с английскими символами утрачивает английские символы', () => {
+    const text = 'Текст с english буквами';
+
+    const compressed = LZW.compress(text);
+    const decompressed = LZW.decompress(compressed);
+
+    expect(decompressed).toBe('Текст с         буквами');
 });
