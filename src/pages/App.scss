@@ -1,12 +1,15 @@
 .App {
-	width: 40%;
+	@media screen and (min-width: 700px) {
+		width: 40%;
 
-	margin: 50px auto;
+		margin: 50px auto;
+
+		border-radius: 8px;
+
+		box-shadow: 0 0 6px 0 rgba(0, 0, 0, .3);
+	}
+	
 	overflow: hidden;
-
-	border-radius: 8px;
-
-	box-shadow: 0 0 6px 0 rgba(0, 0, 0, .3);
 
 	&-title {
 		text-align: center;

@@ -15,7 +15,7 @@ export default class LZW {
             throw new Error('Задана пустая строка');
         }
 
-        const dict = new Dictionary;
+        const dict = new Dictionary();
 
         let w: string = "";
         const result: number[] = [];
@@ -50,7 +50,7 @@ export default class LZW {
         let result;
         let entry = "";
 
-        const dict = new Dictionary;
+        const dict = new Dictionary();
 
         w = dict.getSequenceByCode(input[0]);
 
