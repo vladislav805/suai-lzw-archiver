@@ -2,7 +2,7 @@ import React from 'react';
 import FileChooser from '../components/FileChooser';
 import readFileAsync from '../util/read-file';
 import LZW from '../util/lzw';
-import { StringToUInt8 } from '../util/conv';
+import { StringToUInt16 } from '../util/conv';
 
 export interface IUnpackProps {}
 
@@ -48,7 +48,7 @@ export default class Unpack extends React.Component<IUnpackProps, IUnpackState> 
         this.setState({ busy: true });
 
         const fileContent = await readFileAsync(this.file, false);
-        const result = LZW.decompress(StringToUInt8(fileContent));
+        const result = LZW.decompress(StringToUInt16(fileContent));
 
         if (result === null) {
             this.setState({ busy: false });

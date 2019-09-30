@@ -5,7 +5,7 @@ import readFileAsync from '../util/read-file';
 
 import '../common.scss';
 import LZW from '../util/lzw';
-import { UInt8ToString } from '../util/conv';
+import { UInt16ToString } from '../util/conv';
 
 export interface IPackProps {
 
@@ -13,7 +13,8 @@ export interface IPackProps {
 
 export interface IPackState {
     input: string; // входные данные
-    busy: boolean;
+    busy: boolean; // занятость
+    stat?: string; // статистика 
 }
 
 /**
@@ -26,7 +27,8 @@ export default class Pack extends React.Component<IPackProps, IPackState> {
      */
     state: IPackState = {
         input: '',
-        busy: false
+        busy: false,
+        stat: undefined
     };
 
     /**
@@ -55,17 +57,23 @@ export default class Pack extends React.Component<IPackProps, IPackState> {
      * При нажатии на кнопку архивируем текст и отдаем файл
      */
     private onRequestCompress = async (event: React.MouseEvent) => {
+        let stat = undefined;
         try {
             this.setState({ busy: true });
             
-            const compressed: Uint8Array = LZW.compress(this.state.input);
-            const blob = new Blob([UInt8ToString(compressed)], {type: 'text/plain; charset=utf-8'});
+            const compressed: Uint16Array = LZW.compress(this.state.input);
+            const blob = new Blob([UInt16ToString(compressed)], {type: 'text/plain; charset=utf-8'});
 
             FileSaver.saveAs(blob, 'compressed.lzwf');
+
+            const origSize = this.state.input.length;
+            const compSize = blob.size;
+
+            stat = `${origSize} bytes -> ${compSize} bytes (размер от оригинала: ${(compSize / origSize * 100).toFixed(1)}%)`;
         } catch (e) {
             alert(`Error:\n${e.message}`);
         } finally {
-            this.setState({ busy: false });
+            this.setState({ busy: false, stat: stat });
         }
     };
 
@@ -89,6 +97,7 @@ export default class Pack extends React.Component<IPackProps, IPackState> {
                     className="button"
                     onClick={this.onRequestCompress}>Запаковать</button>
             </div>
+            {this.state.stat && <div className="label">{this.state.stat}</div>}
         </div>;
     }
 }

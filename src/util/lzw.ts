@@ -8,9 +8,9 @@ export default class LZW {
 
     /**
      * Функция запаковщика
-     * @returns возвращает uint8-массив запакованных байт
+     * @returns возвращает uint16-массив запакованных байт
      */
-    public static compress = (input: string): Uint8Array => {
+    public static compress = (input: string): Uint16Array => {
         if (!input || !input.length) {
             throw new Error('Задана пустая строка');
         }
@@ -37,14 +37,14 @@ export default class LZW {
             result.push(dict.getCodeOfSequence(w));
         }
 
-        return Uint8Array.from(result);
+        return Uint16Array.from(result);
     }
 
     /**
      * Функция распаковщика
      * @returns возвращает строку или null, если что-то пошло не так
      */
-    public static decompress = (input: Uint8Array): string | null => {
+    public static decompress = (input: Uint16Array): string | null => {
         let w;
         let k;
         let result;
