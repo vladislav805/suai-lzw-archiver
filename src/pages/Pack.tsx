@@ -3,8 +3,9 @@ import FileSaver from 'file-saver';
 import FileChooser from '../components/FileChooser';
 import readFileAsync from '../util/read-file';
 
-import './pack.scss';
 import '../common.scss';
+import LZW from '../util/lzw';
+import { UInt8ToString } from '../util/conv';
 
 export interface IPackProps {
 
@@ -14,12 +15,6 @@ export interface IPackState {
     input: string; // входные данные
     busy: boolean;
 }
-
-/**
- * Временная функция-заглушка
- * @param input Исодный текст
- */
-const noop = async (input: string) => input;
 
 /**
  * Вкладка для запаковки данных
@@ -63,9 +58,8 @@ export default class Pack extends React.Component<IPackProps, IPackState> {
         try {
             this.setState({ busy: true });
             
-            const compressed = await noop(this.state.input);
-
-            const blob = new Blob([compressed], {type: 'text/plain; charset=utf-8'});
+            const compressed: Uint8Array = LZW.compress(this.state.input);
+            const blob = new Blob([UInt8ToString(compressed)], {type: 'text/plain; charset=utf-8'});
 
             FileSaver.saveAs(blob, 'compressed.lzwf');
         } catch (e) {
@@ -88,6 +82,7 @@ export default class Pack extends React.Component<IPackProps, IPackState> {
             <FileChooser
                 onChange={this.onFileOpened}
                 label="Открыть файл" />
+            <div className="label">Поддерживается только русский текст и базовые символы.</div>
             <div className="tab-content--actions">
                 <button
                     disabled={this.state.busy}
