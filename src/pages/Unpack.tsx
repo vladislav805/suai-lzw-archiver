@@ -9,6 +9,7 @@ export interface IUnpackProps {}
 export interface IUnpackState {
     output: string; // результат распаковки
     busy: boolean; // loading...
+    status?: string; // статус
 }
 
 /**
@@ -36,12 +37,16 @@ export default class Unpack extends React.Component<IUnpackProps, IUnpackState> 
         this.file = file;
     };
 
+    private setStatus = (status?: string) => {
+        this.setState({ status });
+    };
+
     /**
      * При нажатии на кнопку читаем файл и распаковываем его
      */
     private onRequestDecompress = async (event: React.MouseEvent) => {
         if (!this.file) {
-            alert('Вы не выбрали файл');
+            this.setStatus('Вы не выбрали файл');
             return;
         }
 
@@ -51,12 +56,15 @@ export default class Unpack extends React.Component<IUnpackProps, IUnpackState> 
         const result = LZW.decompress(StringToUInt16(fileContent));
 
         if (result === null) {
-            this.setState({ busy: false });
-            alert('Данные повреждены.');
+            this.setState({ busy: false, status: 'Данные повреждены, распаковка невозможна' });
             return;
         }
 
-        this.setState({ output: String(result), busy: false });
+        this.setState({
+            output: String(result),
+            busy: false,
+            status: `Считано: ${fileContent.length} байт; исходная длина ${result.length} байт`
+        });
     };
 
     render() {
@@ -76,6 +84,7 @@ export default class Unpack extends React.Component<IUnpackProps, IUnpackState> 
                 name="output"
                 className="textfield textfield__high"
                 value={this.state.output} />
+            {this.state.status && <div className="label">{this.state.status}</div>}
         </div>;
     }
 }
