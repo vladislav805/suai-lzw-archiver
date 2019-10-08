@@ -1,6 +1,9 @@
 import { isTextSync } from 'istextorbinary';
 
 export default async (file: File, throwIfBinary: boolean = true) => new Promise<string>((resolve, reject) => {
+    if (!file) {
+        throw new Error('Файл не выбран');
+    }
     const reader = new FileReader();
     reader.readAsText(file);
     reader.onload = (event: ProgressEvent<FileReader>) => {
