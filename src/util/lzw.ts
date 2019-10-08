@@ -21,17 +21,25 @@ export default class LZW {
         let w: string = ""; // входная фраза; более длинная строка из корня дерева, предшествующая k в тексте
         const result: number[] = []; // результат сжатия; коды символов из словаря
 
+        console.info('Запаковка');
+
         for (let i = 0; i < input.length; ++i) {
+            console.group(`Итерация ${i}`);
+
             // Шаг 2. Считать очередной символ k из текста
             let k = input.charAt(i);
 
             // Новая запись/фраза словаря
             let wk = w + k;
 
+            console.log(`k=[${k}]; wk=[${wk}]`);
+
             // Шаг 3. Если фраза WK уже есть в словаре
             if (dict.hasSequence(wk)) {
                 // То присвоить входной фразе W значение WK и перейти к шагу 2.
                 w = wk;
+
+                console.log(`Фраза wk есть в словаре; w=wk=[${wk}]`);
                 continue;
             }
 
@@ -47,12 +55,18 @@ export default class LZW {
 
             // 4.4. добавить код W в результат
             result.push(codeW);
+
+            console.log(`Фразы wk нет в словаре; добавляем wc=[${wk}] в словарь, добавляем код w=[${w}] в словарь`);
+
+            console.groupEnd();
         }
 
         // Шаг 5. Если сообщение закончилось и остался W
         if (w) {
             // то выдать код для W
             result.push(dict.getCodeOfSequence(w));
+
+            console.log(`Остался w, добавляем в результат код w=[${w}]=[${dict.getCodeOfSequence(w)}]`);
         }
 
         return Uint16Array.from(result);
@@ -75,7 +89,12 @@ export default class LZW {
 
         let result = w;
 
+        console.log('Распаковка');
+        console.log(`w=[${w}]`);
+
         for (let i = 1; i < input.length; ++i) {
+            console.group(`Итерация ${i}`);
+
             // Шаг 2. Считать очередной код символа k
             k = input[i];
 
@@ -88,26 +107,36 @@ export default class LZW {
             if (dict.hasCode(k)) {
                 // То получаем фразу по коду
                 entry = dict.getSequenceByCode(k);
+
+                console.log(`Код k=[${k}] есть в словаре; entry=k`);
             } else {
                 // Иначе
+                console.log(`Код k=[${k}] нет в словаре`);
+
                 // Если k - это следующий символ, после последнего в словаре
                 if (k === dict.getSize()) {
                     // То конкатенируем его с последней фразой
                     entry = w + w.charAt(0);
+                    console.log(`Новая последовательность; k=[${k}]; entry=[${entry}]`);
                 } else {
                     // Иначе это неизвестный символ, ошибка декодирования
                     throw new Error('Данные повреждены, распаковка невозможна');
                 }
             }
 
+            console.log(`entry=[${entry}]`);
+
             // Добавляем entry в результат
             result += entry;
 
             // Добавляем в словарь предыдущую фразу и первый символ в словарь
-            dict.putSequence(w + entry.charAt(0));
+            const seq = w + entry.charAt(0);
+            const seqId = dict.putSequence(seq);
+            console.log(`Добавлен seq=[${seq}] на seqId=${seqId}`);
 
             // Заменяем последнюю фразу текущим элементом
             w = entry;
+            console.groupEnd();
         }
 
         return result;
