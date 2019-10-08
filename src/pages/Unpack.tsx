@@ -37,34 +37,25 @@ export default class Unpack extends React.Component<IUnpackProps, IUnpackState> 
         this.file = file;
     };
 
-    private setStatus = (status?: string) => {
-        this.setState({ status });
-    };
-
     /**
      * При нажатии на кнопку читаем файл и распаковываем его
      */
     private onRequestDecompress = async (event: React.MouseEvent) => {
-        if (!this.file) {
-            this.setStatus('Вы не выбрали файл');
-            return;
+        try {
+            this.setState({ busy: true });
+
+            const fileContent = await readFileAsync(this.file!, false);
+            const result = LZW.decompress(StringToUInt16(fileContent));
+
+            this.setState({
+                output: String(result),
+                status: `Считано: ${fileContent.length} байт; исходная длина ${result.length} байт`
+            });
+        } catch (e) {
+            this.setState({ status: e.message });
+        } finally {
+            this.setState({ busy: false });
         }
-
-        this.setState({ busy: true });
-
-        const fileContent = await readFileAsync(this.file, false);
-        const result = LZW.decompress(StringToUInt16(fileContent));
-
-        if (result === null) {
-            this.setState({ busy: false, status: 'Данные повреждены, распаковка невозможна' });
-            return;
-        }
-
-        this.setState({
-            output: String(result),
-            busy: false,
-            status: `Считано: ${fileContent.length} байт; исходная длина ${result.length} байт`
-        });
     };
 
     render() {
