@@ -46,6 +46,7 @@ export default class LZW {
                 w = wk;
 
                 log(`Фраза wk есть в словаре; w=wk=[${wk}]`);
+                logGroup();
                 continue;
             }
 
